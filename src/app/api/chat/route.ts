@@ -5,7 +5,7 @@ export async function POST(req: Request) {
     try {
         const { message, history, currentTopic, image, documentContext, existingLabels } = await req.json();
 
-        // Dynamic config from headers
+        // Dynamic config from headers (with server-side fallback)
         const headers = req.headers;
         const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         const modelName = headers.get('x-gemini-model') || "gemini-2.0-flash-exp";
