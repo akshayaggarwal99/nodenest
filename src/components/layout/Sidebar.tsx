@@ -79,24 +79,15 @@ export function Sidebar() {
 
             {/* Footer */}
             <div className="p-4 border-t border-zinc-800 bg-zinc-900/80">
-                <button
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-pointer w-full text-left"
-                >
-                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center border border-zinc-700 shadow-sm relative overflow-hidden">
-                        <span className="text-white font-bold text-xs z-10">N</span>
-                        <div className="absolute inset-0 bg-gradient-to-tr from-green-500/20 to-blue-500/20" />
+                <div className="flex items-center gap-3 opacity-60 hover:opacity-100 transition-opacity cursor-pointer">
+                    <div className="w-8 h-8 rounded-full bg-black flex items-center justify-center border border-zinc-700 shadow-sm">
+                        <span className="text-white font-bold text-xs">N</span>
                     </div>
-                    <div className="flex flex-col flex-1">
-                        <span className="text-xs font-semibold text-zinc-300 flex items-center gap-1">
-                            NodeNest <span className="bg-zinc-800 text-[9px] px-1 rounded text-zinc-400">v1.2</span>
-                        </span>
-                        <span className="text-[10px] text-zinc-500">Settings & API Key</span>
+                    <div className="flex flex-col">
+                        <span className="text-xs font-semibold text-zinc-300">NodeNest Pro</span>
+                        <span className="text-[10px] text-zinc-600">v1.2.0 Beta</span>
                     </div>
-                    <div className="text-zinc-500">
-                        <Settings size={14} />
-                    </div>
-                </button>
+                </div>
             </div>
 
             <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />

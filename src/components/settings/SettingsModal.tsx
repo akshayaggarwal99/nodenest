@@ -73,9 +73,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
                             className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
                         >
-                            <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Recommended)</option>
-                            <option value="gemini-1.5-pro">Gemini 1.5 Pro (Slower, Smarter)</option>
-                            <option value="gemini-1.5-flash">Gemini 1.5 Flash (Fastest)</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Best Price/Performance)</option>
+                            <option value="gemini-2.5-pro">Gemini 2.5 Pro (State of the Art)</option>
+                            <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image (Vision Optimized)</option>
+                            <option value="gemini-2.0-flash">Gemini 2.0 Flash (Legacy Workhorse)</option>
                         </select>
                     </div>
 

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Menu, Save, Check, LayoutGrid } from 'lucide-react';
+import { Menu, Save, Check, LayoutGrid, Settings } from 'lucide-react';
 import useFlowStore from '@/store/useFlowStore';
 import { InputBar } from '@/components/input/InputBar';
+import { SettingsModal } from '@/components/settings/SettingsModal';
 
 export function Header() {
     const { toggleSidebar, saveSession, nodes } = useFlowStore();
     const [saved, setSaved] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const handleSave = async () => {
         const title = nodes.find(n => n.data.isRoot)?.data.label || "Untitled Graph";
@@ -39,6 +41,13 @@ export function Header() {
 
             {/* Right Section: Actions */}
             <div className="flex items-center gap-3">
+                <button
+                    onClick={() => setIsSettingsOpen(true)}
+                    className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                >
+                    <Settings size={20} />
+                </button>
+                <div className="w-px h-6 bg-zinc-800 mx-1" />
                 <a
                     href="https://github.com/akshayaggarwal99/nodenest"
                     target="_blank"
@@ -57,6 +66,7 @@ export function Header() {
                     <span>{saved ? "Saved" : "Save"}</span>
                 </button>
             </div>
+            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
         </header>
     );
 }

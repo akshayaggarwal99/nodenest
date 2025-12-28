@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         const headers = req.headers;
         const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         // Image model is usually fixed but enabling override just in case, default to specific image model
-        const modelName = "gemini-2.0-flash-exp"; // 2.0 has great image gen
+        const modelName = "gemini-2.5-flash-image"; // 2.5 has specific flash image model
 
         if (!apiKey) {
             return NextResponse.json({ error: "No API Key provided" }, { status: 401 });
