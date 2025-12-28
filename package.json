@@ -1,0 +1,40 @@
+{
+  "name": "nodenest-mindflare",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@types/dagre": "^0.7.53",
+    "clsx": "^2.1.1",
+    "dagre": "^0.8.5",
+    "framer-motion": "^12.23.26",
+    "gif.js": "^0.2.0",
+    "html-to-image": "^1.11.13",
+    "lucide-react": "^0.562.0",
+    "mermaid": "^11.12.2",
+    "next": "16.1.1",
+    "pdf-parse": "^2.4.5",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
+    "reactflow": "^11.11.4",
+    "tailwind-merge": "^3.4.0",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}

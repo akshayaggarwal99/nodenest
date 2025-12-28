@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@layer utilities {
+  /* Add any custom utilities here */
+}
+
+/* Ensure full height for React Flow */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
