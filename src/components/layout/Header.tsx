@@ -20,16 +20,20 @@ export function Header() {
     return (
         <header className="h-16 border-b border-zinc-800 bg-zinc-900 flex items-center justify-between px-5 z-30 shrink-0 relative">
             {/* Left Section: Logo + Toggle */}
-            <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2.5 cursor-pointer group">
+            <div className="flex items-center gap-4 md:gap-6">
+                <div
+                    onClick={toggleSidebar}
+                    className="flex items-center gap-2.5 cursor-pointer group"
+                >
                     <div className="w-8 h-8 bg-green-500/10 rounded-md flex items-center justify-center text-green-500 group-hover:bg-green-500 group-hover:text-black transition-colors duration-300">
                         <LayoutGrid size={18} />
                     </div>
                     <span className="font-bold text-lg tracking-tight text-white hidden md:block">NodeNest</span>
                 </div>
+                {/* Hamburger only visible on desktop when needed */}
                 <button
                     onClick={toggleSidebar}
-                    className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 transition-colors"
+                    className="p-1.5 rounded-md hover:bg-zinc-800 text-zinc-400 transition-colors hidden md:block"
                 >
                     <Menu size={20} />
                 </button>
@@ -41,7 +45,7 @@ export function Header() {
             </div>
 
             {/* Right Section: Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 md:gap-3">
                 <button
                     onClick={toggleChat}
                     className={cn(
@@ -58,7 +62,7 @@ export function Header() {
                 >
                     <Settings size={20} />
                 </button>
-                <div className="w-px h-6 bg-zinc-800 mx-1" />
+                <div className="w-px h-6 bg-zinc-800 mx-1 hidden md:block" />
                 <a
                     href="https://github.com/akshayaggarwal99/nodenest"
                     target="_blank"
