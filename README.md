@@ -13,6 +13,12 @@
 </p>
 
 <p align="center">
+  <a href="https://nodenest-blond.vercel.app/">
+    <img src="https://img.shields.io/badge/Try_Live_Demo-nodenest.vercel.app-2ea44f?style=for-the-badge&logo=vercel&logoColor=white" alt="Try Live Demo" />
+  </a>
+</p>
+
+<p align="center">
   <img src="src/demo/photosynthesis.png" alt="NodeNest Demo" width="100%" style="border-radius: 10px; border: 1px solid #333;" />
 </p>
 
