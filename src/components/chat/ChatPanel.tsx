@@ -165,12 +165,16 @@ export function ChatPanel() {
 
     const handleQuickReply = (reply: string) => sendMessage(reply);
 
-    if (!chatOpen) return null;
+
 
     return (
         <div className={cn(
-            "w-[440px] bg-zinc-900 border-l border-zinc-800 flex flex-col shrink-0 shadow-xl z-20",
-            !chatOpen && "w-0 overflow-hidden"
+            "bg-zinc-900 flex flex-col shrink-0 shadow-xl z-20 transition-all duration-300",
+            // Mobile: Full screen fixed overlay
+            "fixed inset-0 w-full h-full md:relative md:inset-auto md:h-auto",
+            // Desktop: Side panel with transition
+            "md:w-[440px] md:border-l md:border-zinc-800",
+            !chatOpen && "hidden md:flex md:w-0 md:border-l-0 overflow-hidden"
         )}>
             {/* Header */}
             <div className="h-16 flex items-center justify-between px-5 border-b border-zinc-800 bg-zinc-900">
@@ -245,7 +249,7 @@ export function ChatPanel() {
             {pendingImage && (
                 <div className="px-5 py-3 border-t border-zinc-800 bg-zinc-900">
                     <div className="relative inline-block">
-                        <img src={pendingImage} alt="To upload" className="h-20 rounded-lg object-cover" />
+                        <img src={pendingImage || undefined} alt="To upload" className="h-20 rounded-lg object-cover" />
                         <button
                             onClick={() => setPendingImage(null)}
                             className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600"
