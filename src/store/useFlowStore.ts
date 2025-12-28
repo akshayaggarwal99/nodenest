@@ -133,7 +133,40 @@ type FlowState = {
     // Document Context (for PDFs, etc.)
     documentContext: string | null;
     setDocumentContext: (context: string | null) => void;
+
+    // Settings Slice
+    settings: {
+        apiKey: string;
+        model: string;
+        systemPrompt: string;
+    };
+    updateSettings: (settings: Partial<FlowState['settings']>) => void;
 };
+
+// Default System Prompt (Socratic)
+const DEFAULT_SYSTEM_PROMPT = `
+# Role & Context
+You are an expert Socratic tutor teaching the user. You employ evidence-based learning techniques including scaffolding, elaborative interrogation, and spaced retrieval practice.
+
+# Core Teaching Philosophy
+- **Socratic Method**: Guide through questions, never lecture
+- **Zone of Proximal Development**: Match complexity to demonstrated understanding
+- **Active Recall**: End every response with a retrieval question
+- **Conceptual Chunking**: One concept at a time, building on prior knowledge
+
+# Mandatory Response Structure
+1. **Acknowledgment** (1 sentence): Validate their answer
+2. **Bridge Explanation** (1-2 sentences): Connect to the next concept using analogies
+3. **Retrieval Question**: A thoughtful question that tests understanding
+
+Then append:
+
+---GRAPH_ACTION---
+{JSON object - ONLY when they demonstrate understanding}
+
+---QUICK_REPLIES---
+["Correct Answer", "Common Misconception", "Ask to Explain"]
+`;
 
 const useFlowStore = create<FlowState>()(
     persist(
@@ -141,6 +174,17 @@ const useFlowStore = create<FlowState>()(
             nodes: [],
             edges: [],
             storedSessions: {}, // Holds all saved sessions
+
+            // Settings Defaults
+            settings: {
+                apiKey: "",
+                model: "gemini-2.0-flash-exp",
+                systemPrompt: DEFAULT_SYSTEM_PROMPT
+            },
+
+            updateSettings: (newSettings) => set((state) => ({
+                settings: { ...state.settings, ...newSettings }
+            })),
 
             onNodesChange: (changes: NodeChange[]) => {
                 set({
@@ -167,8 +211,21 @@ const useFlowStore = create<FlowState>()(
             generateGraph: async (topic: string) => {
                 set({ isLoading: true });
                 try {
+                    const { settings } = get();
                     // Use AI to create a clean, short topic title
-                    const displayTitle = await generateTitle(topic);
+                    // Pass settings headers if available
+                    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                    if (settings.apiKey) headers['x-gemini-api-key'] = settings.apiKey;
+                    if (settings.model) headers['x-gemini-model'] = settings.model;
+
+                    const res = await fetch('/api/generate-title', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ userInput: topic })
+                    });
+                    const data = await res.json();
+
+                    const displayTitle = data.title || topic.slice(0, 30);
 
                     // Chat-First: Only create the ROOT node. 
                     // Children are added via chat interaction.
@@ -203,13 +260,18 @@ const useFlowStore = create<FlowState>()(
             expandNode: async (parentId: string, topic: string) => {
                 set({ expandingNodeId: parentId }); // Set local loading
                 try {
-                    const nodes = get().nodes;
+                    const { nodes, settings } = get();
                     const parentNode = nodes.find(n => n.id === parentId);
                     if (!parentNode) return;
 
+                    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                    if (settings.apiKey) headers['x-gemini-api-key'] = settings.apiKey;
+                    if (settings.model) headers['x-gemini-model'] = settings.model;
+                    if (settings.systemPrompt) headers['x-system-prompt'] = settings.systemPrompt;
+
                     const response = await fetch('/api/generate-graph', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers,
                         body: JSON.stringify({ topic, parentNodeId: parentId }),
                     });
 
@@ -265,8 +327,7 @@ const useFlowStore = create<FlowState>()(
                 if (action.type !== 'add_node') return;
 
                 const { label, description, emoji, parentLabel, diagram, imagePrompt } = action;
-                const nodes = get().nodes;
-                const edges = get().edges;
+                const { nodes, edges, settings } = get();
                 const rootNode = nodes.find(n => n.data?.isRoot);
 
                 let parentNode;
@@ -321,9 +382,13 @@ const useFlowStore = create<FlowState>()(
 
                 // Generate image asynchronously if imagePrompt provided
                 if (imagePrompt) {
+                    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+                    if (settings.apiKey) headers['x-gemini-api-key'] = settings.apiKey;
+                    if (settings.model) headers['x-gemini-model'] = settings.model;
+
                     fetch('/api/generate-image', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers,
                         body: JSON.stringify({ prompt: imagePrompt })
                     })
                         .then(res => res.json())
@@ -432,7 +497,10 @@ const useFlowStore = create<FlowState>()(
         {
             name: 'nodenest-storage', // unique name
             storage: createJSONStorage(() => localStorage), // use LocalStorage
-            partialize: (state) => ({ storedSessions: state.storedSessions }), // ONLY persist saved sessions, not current transient state
+            partialize: (state) => ({
+                storedSessions: state.storedSessions,
+                settings: state.settings // Persist settings too!
+            }),
             version: 1,
         }
     )

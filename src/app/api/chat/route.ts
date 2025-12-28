@@ -1,9 +1,25 @@
-import { geminiVisionModel, geminiModel } from "@/lib/gemini";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
         const { message, history, currentTopic, image, documentContext, existingLabels } = await req.json();
+
+        // Dynamic config from headers
+        const headers = req.headers;
+        const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        const modelName = headers.get('x-gemini-model') || "gemini-2.0-flash-exp";
+
+        // Use custom system prompt if provided, otherwise perform string replacement on default
+        let systemPrompt = headers.get('x-system-prompt');
+
+        if (!apiKey) {
+            return NextResponse.json({ error: "No API Key provided" }, { status: 401 });
+        }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: modelName });
+        const visionModel = genAI.getGenerativeModel({ model: modelName }); // Most modern Gemini models are multimodal
 
         const docContextStr = documentContext
             ? `\n\n## Reference Document\nThe user has uploaded a document. Use this as context:\n---\n${documentContext.substring(0, 15000)}\n---\n`
@@ -14,8 +30,8 @@ export async function POST(req: Request) {
             ? `\n\n## CONCEPTS ALREADY IN NOTEBOOK\n${existingLabels.map((l: string) => `• ${l}`).join('\n')}\n\nNEVER reuse these exact labels. Create unique, specific variations instead.\n`
             : '';
 
-        // Professional prompt crafted with educational psychology principles
-        const systemPrompt = `
+        // Default System Prompt if not provided via headers
+        const defaultSystemPrompt = `
 # Role & Context
 You are an expert Socratic tutor teaching "${currentTopic || 'the topic'}". You employ evidence-based learning techniques including scaffolding, elaborative interrogation, and spaced retrieval practice.
 
@@ -110,8 +126,15 @@ Always provide 3 options:
 □ Uses concrete analogy
 □ Bold key terminology
 □ Quick replies are substantive, not "Yes/No"
-${existingLabelsStr}${docContextStr}
 `;
+
+        // If no custom prompt, use default and append dynamic context
+        if (!systemPrompt) {
+            systemPrompt = defaultSystemPrompt + existingLabelsStr + docContextStr;
+        } else {
+            // If custom prompt, we still append context, but trust the user's prompt structure
+            systemPrompt = systemPrompt + existingLabelsStr + docContextStr;
+        }
 
         let responseText: string;
 
@@ -123,13 +146,13 @@ ${existingLabelsStr}${docContextStr}
                 }
             };
             const prompt = `${systemPrompt}\n\nUser message: ${message}\n\n[User shared an image - analyze it]`;
-            const result = await geminiVisionModel.generateContent([prompt, imagePart]);
+            const result = await visionModel.generateContent([prompt, imagePart]);
             responseText = result.response.text();
         } else {
-            const chatSession = geminiModel.startChat({
+            const chatSession = model.startChat({
                 history: [
                     { role: "user", parts: [{ text: systemPrompt }] },
-                    { role: "model", parts: [{ text: "Understood. I will: employ Socratic questioning, add to notebook only when understanding is demonstrated, use unique labels, include imagePrompt only for truly visual concepts, and always end with retrieval questions and substantive quick replies." }] },
+                    { role: "model", parts: [{ text: "Understood. I will follow the provided system instructions and teaching philosophy." }] },
                     ...(history || [])
                 ],
             });

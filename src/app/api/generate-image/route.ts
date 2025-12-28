@@ -1,21 +1,26 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 
-const apiKey = process.env.GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(apiKey || "");
-
-// Gemini image generation model
-const imageModel = genAI.getGenerativeModel({
-    model: "gemini-2.5-flash-image",
-});
-
 export async function POST(req: Request) {
     try {
         const { prompt } = await req.json();
 
+        // Get headers for custom config
+        const headers = req.headers;
+        const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        // Image model is usually fixed but enabling override just in case, default to specific image model
+        const modelName = "gemini-2.0-flash-exp"; // 2.0 has great image gen
+
+        if (!apiKey) {
+            return NextResponse.json({ error: "No API Key provided" }, { status: 401 });
+        }
+
         if (!prompt) {
             return NextResponse.json({ error: "No prompt provided" }, { status: 400 });
         }
+
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const imageModel = genAI.getGenerativeModel({ model: modelName });
 
         // Generate educational diagram
         const enhancedPrompt = `Create a simple, clean educational diagram: ${prompt}. Style: minimalist, flat design, infographic, clear shapes, no text labels needed.`;
