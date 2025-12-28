@@ -206,7 +206,7 @@ const useFlowStore = create<FlowState>()(
             clearFitView: () => set({ shouldFitView: false }),
             expandingNodeId: null,
             currentSessionId: null,
-            chatHistory: [{ role: 'model', text: 'Hi! Select a node or ask me anything to deepen your understanding.' }], // Default start
+            chatHistory: [{ role: 'model', text: '👋 **Welcome to NodeNest!**\n\nType a topic in the search bar above (e.g., "Quantum Computing") to start building your knowledge map.\n\nOr just ask me anything here and I will create your learning journey!' }], // Default start
 
             generateGraph: async (topic: string) => {
                 set({ isLoading: true });
@@ -427,7 +427,7 @@ const useFlowStore = create<FlowState>()(
                     nodes: [],
                     edges: [],
                     currentSessionId: null,
-                    chatHistory: [{ role: 'model', text: 'Hi! Select a node or ask me anything to deepen your understanding.' }]
+                    chatHistory: [{ role: 'model', text: '👋 **Welcome to NodeNest!**\n\nType a topic in the search bar above (e.g., "Quantum Computing") to start building your knowledge map.\n\nOr just ask me anything here and I will create your learning journey!' }]
                 });
             },
 

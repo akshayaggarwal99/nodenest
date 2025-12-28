@@ -120,6 +120,14 @@ export function ChatPanel() {
         try {
             const validHistory = messages.filter((_, i) => i > 0 || messages[0].role !== 'model');
             const nodes = useFlowStore.getState().nodes;
+
+            // If canvas is empty, create root node first, then continue chat
+            if (nodes.length === 0 && userMessage.trim()) {
+                await useFlowStore.getState().generateGraph(userMessage);
+                setIsLoading(false);
+                return; // generateGraph creates the root and opens chat, done
+            }
+
             const rootNode = nodes.find(n => n.data?.isRoot);
             const currentTopic = rootNode?.data?.label || 'the topic';
 
