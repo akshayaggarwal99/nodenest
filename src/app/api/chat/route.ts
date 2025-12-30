@@ -8,7 +8,7 @@ export async function POST(req: Request) {
         // Dynamic config from headers (with server-side fallback)
         const headers = req.headers;
         const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        const modelName = headers.get('x-gemini-model') || "gemini-2.0-flash-exp";
+        const modelName = headers.get('x-gemini-model') || "gemini-2.5-flash";
 
         // Use custom system prompt if provided, otherwise perform string replacement on default
         let systemPrompt = headers.get('x-system-prompt');

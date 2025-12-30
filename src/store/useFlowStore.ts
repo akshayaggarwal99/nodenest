@@ -178,7 +178,7 @@ const useFlowStore = create<FlowState>()(
             // Settings Defaults
             settings: {
                 apiKey: "",
-                model: "gemini-2.0-flash-exp",
+                model: "gemini-2.5-flash",
                 systemPrompt: DEFAULT_SYSTEM_PROMPT
             },
 
