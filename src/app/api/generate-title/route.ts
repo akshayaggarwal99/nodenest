@@ -7,8 +7,8 @@ export async function POST(req: Request) {
 
         // Dynamic config from headers
         const headers = req.headers;
-        const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
-        const modelName = headers.get('x-gemini-model') || "gemini-2.0-flash-exp";
+        const apiKey = headers.get('x-gemini-api-key'); // STRICT
+        const modelName = headers.get('x-gemini-model') || "gemini-3-flash-preview";
 
         if (!apiKey) {
             return NextResponse.json({ error: "No API Key provided" }, { status: 401 });

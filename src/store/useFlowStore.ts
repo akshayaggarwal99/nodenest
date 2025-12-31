@@ -127,8 +127,11 @@ type FlowState = {
     // UI State
     sidebarOpen: boolean;
     chatOpen: boolean;
+    settingsOpen: boolean;
     toggleSidebar: () => void;
     toggleChat: () => void;
+    toggleSettings: () => void;
+    setSettingsOpen: (open: boolean) => void;
 
     // Document Context (for PDFs, etc.)
     documentContext: string | null;
@@ -164,6 +167,16 @@ Then append:
 ---GRAPH_ACTION---
 {JSON object - ONLY when they demonstrate understanding}
 
+---GRAPH_ACTION---
+{
+  "type": "add_node",
+  "label": "Concept Name",
+  "description": "Short explanation (10-15 words)",
+  "emoji": "💡",
+  "parentLabel": "Parent Node Label (optional, default to root)",
+  "imagePrompt": "Description for visual generation (optional)"
+}
+
 ---QUICK_REPLIES---
 ["Correct Answer", "Common Misconception", "Ask to Explain"]
 `;
@@ -178,7 +191,7 @@ const useFlowStore = create<FlowState>()(
             // Settings Defaults
             settings: {
                 apiKey: "",
-                model: "gemini-2.5-flash",
+                model: "gemini-3-flash-preview",
                 systemPrompt: DEFAULT_SYSTEM_PROMPT
             },
 
@@ -267,7 +280,6 @@ const useFlowStore = create<FlowState>()(
                     const headers: HeadersInit = { 'Content-Type': 'application/json' };
                     if (settings.apiKey) headers['x-gemini-api-key'] = settings.apiKey;
                     if (settings.model) headers['x-gemini-model'] = settings.model;
-                    if (settings.systemPrompt) headers['x-system-prompt'] = settings.systemPrompt;
 
                     const response = await fetch('/api/generate-graph', {
                         method: 'POST',
@@ -489,6 +501,10 @@ const useFlowStore = create<FlowState>()(
             chatOpen: true,
             toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
             toggleChat: () => set((state) => ({ chatOpen: !state.chatOpen })),
+
+            settingsOpen: false,
+            toggleSettings: () => set((state) => ({ settingsOpen: !state.settingsOpen })),
+            setSettingsOpen: (open) => set({ settingsOpen: open }),
 
             // Document context for PDFs
             documentContext: null,

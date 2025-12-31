@@ -45,8 +45,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             <h3>Google Gemini API Key</h3>
                         </div>
                         <p className="text-sm text-zinc-400">
-                            Leave empty to use the free hosted key. Enter your own key for higher rate limits or privacy.
-                            Get one <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-green-400 hover:underline">here</a>.
+                            Enter your Gemini API Key to use the application. <span className="text-red-400">Required.</span>
+                            Get one for free <a href="https://aistudio.google.com/app/apikey" target="_blank" className="text-green-400 hover:underline">here</a>.
                         </p>
                         <input
                             type="password"
@@ -73,10 +73,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                             onChange={(e) => setLocalSettings({ ...localSettings, model: e.target.value })}
                             className="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-3 text-white focus:outline-none focus:border-blue-500 transition-colors"
                         >
-                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Best Price/Performance)</option>
+                            <option value="gemini-3-flash-preview">Gemini 3 Flash (New & Intelligent)</option>
+                            <option value="gemini-3-pro-preview">Gemini 3 Pro (Most Powerful)</option>
+                            <option value="gemini-2.5-flash">Gemini 2.5 Flash (Reliable Workhorse)</option>
                             <option value="gemini-2.5-pro">Gemini 2.5 Pro (State of the Art)</option>
                             <option value="gemini-2.5-flash-image">Gemini 2.5 Flash Image (Vision Optimized)</option>
-                            <option value="gemini-2.0-flash">Gemini 2.0 Flash (Legacy Workhorse)</option>
                         </select>
                     </div>
 

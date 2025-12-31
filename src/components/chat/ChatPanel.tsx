@@ -136,16 +136,28 @@ export function ChatPanel() {
 
             const response = await fetch('/api/chat', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(useFlowStore.getState().settings.apiKey ? { 'x-gemini-api-key': useFlowStore.getState().settings.apiKey } : {}),
+                    ...(useFlowStore.getState().settings.model ? { 'x-gemini-model': useFlowStore.getState().settings.model } : {}),
+                },
                 body: JSON.stringify({
                     message: userMessage || "Analyze this image and help me understand it.",
                     currentTopic,
                     image: image || undefined,
                     documentContext: useFlowStore.getState().documentContext,
                     existingLabels,  // Pass existing labels to prevent duplicates
-                    history: validHistory.map(m => ({ role: m.role, parts: [{ text: m.text }] }))
+                    history: validHistory.map(m => ({ role: m.role, parts: [{ text: m.text }] })),
+                    // Pass system prompt in body to avoid header length limits/newline issues
+                    systemPrompt: useFlowStore.getState().settings.systemPrompt
                 }),
             });
+
+            if (response.status === 401) {
+                setMessages(prev => [...prev, { role: 'model', text: "🔒 **Authentication Failed**\n\nPlease set your Google Gemini API Key in the settings (gear icon) to continue." }]);
+                useFlowStore.getState().setSettingsOpen(true);
+                return;
+            }
 
             const data = await response.json();
             console.log("Chat response data:", { quickReplies: data.quickReplies, hasResponse: !!data.response });

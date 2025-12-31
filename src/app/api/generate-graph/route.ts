@@ -1,4 +1,4 @@
-import { geminiModel } from "@/lib/gemini";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -39,7 +39,18 @@ export async function POST(req: Request) {
       }
     `;
 
-    const result = await geminiModel.generateContent(prompt);
+    const headers = req.headers;
+    const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY; // Fallback for backward compat if needed, or remove for strict
+    const modelName = headers.get('x-gemini-model') || "gemini-3-flash-preview";
+
+    if (!apiKey) {
+      return NextResponse.json({ error: "No API Key provided" }, { status: 401 });
+    }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({ model: modelName });
+
+    const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
     // Cleanup potential markdown fences if model outputs them despite instructions

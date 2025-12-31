@@ -3,15 +3,15 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
     try {
-        const { message, history, currentTopic, image, documentContext, existingLabels } = await req.json();
+        const { message, history, currentTopic, image, documentContext, existingLabels, systemPrompt: bodySystemPrompt } = await req.json();
 
         // Dynamic config from headers (with server-side fallback)
         const headers = req.headers;
-        const apiKey = headers.get('x-gemini-api-key') || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        const apiKey = headers.get('x-gemini-api-key'); // STRICT: User must provide key
         const modelName = headers.get('x-gemini-model') || "gemini-2.5-flash";
 
-        // Use custom system prompt if provided, otherwise perform string replacement on default
-        let systemPrompt = headers.get('x-system-prompt');
+        // Use custom system prompt if provided (prioritize body for large text, fallback to headers)
+        let systemPrompt = bodySystemPrompt || headers.get('x-system-prompt');
 
         if (!apiKey) {
             return NextResponse.json({ error: "No API Key provided" }, { status: 401 });
@@ -159,7 +159,11 @@ Avoid rigid patterns. Just ensure they are diverse and relevant to the conversat
                     ...(history || [])
                 ],
             });
-            const result = await chatSession.sendMessage(message);
+
+            // Reinforce formatting rules by appending a hidden reminder
+            const reinforcedMessage = `${message}\n\n(REMINDER: If you determine the user has understood the concept, you MUST append the "---GRAPH_ACTION---" section. \nSchema: { "type": "add_node", "label": "...", "description": "...", "emoji": "...", "parentLabel": "..." }.\nAlso always append "---QUICK_REPLIES---" as per instructions.)`;
+
+            const result = await chatSession.sendMessage(reinforcedMessage);
             responseText = result.response.text();
         }
 
@@ -199,10 +203,28 @@ Avoid rigid patterns. Just ensure they are diverse and relevant to the conversat
             try {
                 const qrIndex = afterGraph.indexOf('---QUICK_REPLIES---');
                 const graphSection = qrIndex > -1 ? afterGraph.substring(0, qrIndex) : afterGraph;
-                const jsonMatch = graphSection.match(/\{[\s\S]*?\}/);
-                if (jsonMatch) {
-                    graphAction = JSON.parse(jsonMatch[0]);
-                    console.log("Parsed graph action:", graphAction);
+                // Find the first opening brace
+                const startIdx = graphSection.indexOf('{');
+                if (startIdx !== -1) {
+                    let balance = 0;
+                    let endIdx = -1;
+
+                    // Walk through string to find matching closing brace
+                    for (let i = startIdx; i < graphSection.length; i++) {
+                        if (graphSection[i] === '{') balance++;
+                        else if (graphSection[i] === '}') balance--;
+
+                        if (balance === 0) {
+                            endIdx = i;
+                            break;
+                        }
+                    }
+
+                    if (endIdx !== -1) {
+                        const jsonStr = graphSection.substring(startIdx, endIdx + 1);
+                        graphAction = JSON.parse(jsonStr);
+                        console.log("Parsed graph action:", graphAction);
+                    }
                 }
             } catch (e) {
                 console.error("Failed to parse graph action:", e);

@@ -6,9 +6,8 @@ import { SettingsModal } from '@/components/settings/SettingsModal';
 import { cn } from '@/lib/utils';
 
 export function Header() {
-    const { toggleSidebar, saveSession, nodes, chatOpen, toggleChat } = useFlowStore();
+    const { toggleSidebar, saveSession, nodes, chatOpen, toggleChat, settingsOpen, toggleSettings, setSettingsOpen } = useFlowStore();
     const [saved, setSaved] = useState(false);
-    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     const handleSave = async () => {
         const title = nodes.find(n => n.data.isRoot)?.data.label || "Untitled Graph";
@@ -57,8 +56,11 @@ export function Header() {
                     <MessageSquare size={20} />
                 </button>
                 <button
-                    onClick={() => setIsSettingsOpen(true)}
-                    className="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                    onClick={toggleSettings}
+                    className={cn(
+                        "p-2 rounded-lg transition-colors",
+                        settingsOpen ? "text-green-400 bg-green-500/10" : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    )}
                 >
                     <Settings size={20} />
                 </button>
@@ -81,7 +83,7 @@ export function Header() {
                     <span className="hidden md:inline">{saved ? "Saved" : "Save"}</span>
                 </button>
             </div>
-            <SettingsModal isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+            <SettingsModal isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
         </header>
     );
 }

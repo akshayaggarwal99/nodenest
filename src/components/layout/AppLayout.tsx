@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useEffect } from 'react';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { ChatPanel } from '@/components/chat/ChatPanel';
@@ -13,7 +13,14 @@ interface AppLayoutProps {
 }
 
 export function AppLayout({ children }: AppLayoutProps) {
-    const { sidebarOpen, toggleSidebar } = useFlowStore();
+    const { sidebarOpen, toggleSidebar, settings, setSettingsOpen } = useFlowStore();
+
+    useEffect(() => {
+        // Auto-open settings if no API key is present
+        if (!settings.apiKey) {
+            setSettingsOpen(true);
+        }
+    }, [settings.apiKey, setSettingsOpen]);
 
     return (
         <div className="flex h-screen w-full flex-col overflow-hidden bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
